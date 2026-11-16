@@ -224,6 +224,31 @@ export const platformAnnouncements = pgTable('platform_announcements', {
   createdAt: timestamp('created_at').defaultNow(),
 });
 
+export const marketNewsItems = pgTable('market_news_items', {
+  id: serial('id').primaryKey(),
+  articleKey: text('article_key').notNull().unique(),
+  newsDate: text('news_date').notNull(),
+  title: text('title').notNull(),
+  link: text('link').notNull(),
+  source: text('source').notNull(),
+  category: text('category').notNull(),
+  summary: text('summary').notNull().default(''),
+  symbol: text('symbol'),
+  publishedAt: timestamp('published_at').notNull().defaultNow(),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+export const newsDailyDigests = pgTable('news_daily_digests', {
+  id: serial('id').primaryKey(),
+  digestDate: text('digest_date').notNull().unique(),
+  articleCount: integer('article_count').notNull().default(0),
+  aiDigestEn: text('ai_digest_en').notNull().default(''),
+  aiDigestHi: text('ai_digest_hi'),
+  status: text('status').notNull().default('SYNCED'),
+  lastSyncedAt: timestamp('last_synced_at').notNull().defaultNow(),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
 export const usersRelations = relations(users, ({ many, one }) => ({
   watchlists: many(watchlists),
   portfolioHoldings: many(portfolioHoldings),

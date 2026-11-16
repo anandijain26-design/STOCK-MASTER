@@ -1,4 +1,5 @@
 import { analyzeTechnicals, OHLCVBar, TechnicalSummary } from './indicators';
+import { extractMatchedSymbol } from './news-updater-logic';
 import {
   findStockMaster,
   INDIAN_INDICES,
@@ -417,10 +418,12 @@ function decodeXmlEntities(str: string): string {
     .trim();
 }
 
-export async function fetchIndianFinancialNews(): Promise<NewsArticle[]> {
-  const cacheKey = 'indian_news_rss_v1';
-  const cached = getCached<NewsArticle[]>(cacheKey);
-  if (cached) return cached;
+export async function fetchIndianFinancialNews(bypassCache = false): Promise<NewsArticle[]> {
+  const cacheKey = 'indian_news_rss_v2';
+  if (!bypassCache) {
+    const cached = getCached<NewsArticle[]>(cacheKey);
+    if (cached) return cached;
+  }
 
   const feeds = [
     {
@@ -438,6 +441,16 @@ export async function fetchIndianFinancialNews(): Promise<NewsArticle[]> {
       source: 'ET IPO Desk',
       category: 'IPO News',
     },
+    {
+      url: 'https://www.livemint.com/rss/markets',
+      source: 'Mint Markets',
+      category: 'Markets & NSE/BSE',
+    },
+    {
+      url: 'https://www.moneycontrol.com/rss/marketreports.xml',
+      source: 'Moneycontrol Markets',
+      category: 'Market Reports',
+    },
   ];
 
   const articles: NewsArticle[] = [];
@@ -447,7 +460,7 @@ export async function fetchIndianFinancialNews(): Promise<NewsArticle[]> {
       try {
         const res = await fetch(feed.url, {
           headers: { 'User-Agent': 'Mozilla/5.0' },
-          signal: AbortSignal.timeout(5000),
+          signal: AbortSignal.timeout(5500),
           cache: 'no-store',
         });
         if (!res.ok) return;
@@ -462,14 +475,20 @@ export async function fetchIndianFinancialNews(): Promise<NewsArticle[]> {
           const title = titleMatch ? decodeXmlEntities(titleMatch[1]) : '';
           const link = linkMatch ? decodeXmlEntities(linkMatch[1]) : '';
           if (!title) continue;
+          const summary = descMatch ? decodeXmlEntities(descMatch[1]).slice(0, 260) : '';
+          const rawDate = dateMatch ? new Date(decodeXmlEntities(dateMatch[1])) : new Date();
+          const publishedAt = Number.isNaN(rawDate.getTime()) ? new Date().toISOString() : rawDate.toISOString();
+          const matchedSymbol = extractMatchedSymbol(title, summary) ?? undefined;
+
           articles.push({
             id: `${feed.source}-${i}-${title.slice(0, 16)}`,
             title,
             link,
             source: feed.source,
             category: feed.category,
-            publishedAt: dateMatch ? new Date(decodeXmlEntities(dateMatch[1])).toISOString() : new Date().toISOString(),
-            summary: descMatch ? decodeXmlEntities(descMatch[1]).slice(0, 260) : '',
+            publishedAt,
+            summary,
+            symbol: matchedSymbol,
           });
         }
       } catch (e) {

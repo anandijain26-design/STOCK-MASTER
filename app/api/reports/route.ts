@@ -7,7 +7,7 @@ import {
   fetchIndianFinancialNews,
   fetchStockUniverseWithTechnicals,
 } from '@/src/lib/market-data';
-import { generateDailyReportNarrative, isGeminiConfigured } from '@/src/lib/gemini';
+import { generateBilingualDailyReportNarrative, isGeminiConfigured } from '@/src/lib/gemini';
 
 export const dynamic = 'force-dynamic';
 
@@ -185,10 +185,9 @@ export async function GET() {
         nextSessionOutlook: payload.nextSessionOutlook,
       });
       try {
-        [aiNarrativeEn, aiNarrativeHi] = await Promise.all([
-          generateDailyReportNarrative({ language: 'en', summaryJson: compactJson }),
-          generateDailyReportNarrative({ language: 'hi', summaryJson: compactJson }),
-        ]);
+        const narrative = await generateBilingualDailyReportNarrative({ summaryJson: compactJson });
+        if (narrative.en) aiNarrativeEn = narrative.en;
+        if (narrative.hi) aiNarrativeHi = narrative.hi;
       } catch (e) {
         console.warn('Gemini daily report narrative fallback:', e);
       }
@@ -241,10 +240,13 @@ export async function POST(req: NextRequest) {
         technicalSummary: payload.technicalSummary,
         nextSessionOutlook: payload.nextSessionOutlook,
       });
-      [aiNarrativeEn, aiNarrativeHi] = await Promise.all([
-        generateDailyReportNarrative({ language: 'en', summaryJson: compactJson }),
-        generateDailyReportNarrative({ language: 'hi', summaryJson: compactJson }),
-      ]);
+      try {
+        const narrative = await generateBilingualDailyReportNarrative({ summaryJson: compactJson });
+        if (narrative.en) aiNarrativeEn = narrative.en;
+        if (narrative.hi) aiNarrativeHi = narrative.hi;
+      } catch (e) {
+        console.warn('Gemini daily report narrative fallback in POST:', e);
+      }
     }
 
     const existing = await db.select().from(dailyReports).where(eq(dailyReports.reportDate, today));

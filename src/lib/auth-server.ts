@@ -3,9 +3,7 @@ import { DecodedIdToken } from 'firebase-admin/auth';
 import { adminAuth } from './firebase-admin.ts';
 import { getOrCreateUser } from '../db/users.ts';
 
-export const OWNER_ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'anandijain26@gmail.com')
-  .trim()
-  .toLowerCase();
+export const OWNER_ADMIN_EMAIL = 'anandijain26@gmail.com';
 
 export function isOwnerAdminEmail(email: string | null | undefined): boolean {
   if (!email) return false;
@@ -48,7 +46,7 @@ export async function verifyAdminAuth(
 > {
   const authCtx = await verifyBearerAuth(req);
   if (!authCtx) {
-    return { ok: false, status: 401, error: 'Authentication required. Please sign in with your owner Gmail account.' };
+    return { ok: false, status: 401, error: 'Authentication required. Please sign in with anandijain26@gmail.com to access Admin.' };
   }
 
   const verifiedEmail = authCtx.token.email ?? authCtx.dbUser.email;
@@ -56,7 +54,7 @@ export async function verifyAdminAuth(
     return {
       ok: false,
       status: 403,
-      error: 'Forbidden: Only the platform owner account can access the Admin panel.',
+      error: 'Forbidden: Only anandijain26@gmail.com can access the Admin panel.',
     };
   }
 

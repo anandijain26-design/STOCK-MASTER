@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import React, { useEffect, useState } from 'react';
 import { TerminalShell } from '@/src/components/TerminalShell';
 import { useApp } from '@/src/components/AppProviders';

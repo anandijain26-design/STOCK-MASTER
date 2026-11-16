@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import React, { useEffect, useState } from 'react';
 import { RefreshCw } from 'lucide-react';
 import { TerminalShell } from '@/src/components/TerminalShell';

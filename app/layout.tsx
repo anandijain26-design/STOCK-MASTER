@@ -1,28 +1,6 @@
 import type { Metadata } from 'next';
-import { DM_Sans, IBM_Plex_Mono, Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
 import { AppProviders } from '@/src/components/AppProviders';
-
-const plusJakarta = Plus_Jakarta_Sans({
-  subsets: ['latin'],
-  weight: ['500', '600', '700'],
-  variable: '--font-plus-jakarta',
-  display: 'swap',
-});
-
-const dmSans = DM_Sans({
-  subsets: ['latin'],
-  weight: ['400', '500', '700'],
-  variable: '--font-dm-sans',
-  display: 'swap',
-});
-
-const ibmPlexMono = IBM_Plex_Mono({
-  subsets: ['latin'],
-  weight: ['400', '500', '600'],
-  variable: '--font-ibm-plex-mono',
-  display: 'swap',
-});
 
 export const metadata: Metadata = {
   title: 'Stock Mastery — Indian Stock Market Intelligence & Trading Terminal',
@@ -46,11 +24,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className={`dark ${plusJakarta.variable} ${dmSans.variable} ${ibmPlexMono.variable}`}
+      className="dark"
+      data-scroll-behavior="smooth"
       suppressHydrationWarning
     >
       <body
-        className="min-h-screen bg-slate-50 text-slate-900 dark:bg-[#080D1A] dark:text-slate-100 antialiased selection:bg-blue-500/20"
+        className="min-h-screen bg-slate-50 text-slate-900 dark:bg-[#080D1A] dark:text-slate-100 antialiased selection:bg-blue-500/20 font-sans"
         suppressHydrationWarning
       >
         <AppProviders>{children}</AppProviders>

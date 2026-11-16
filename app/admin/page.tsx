@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import { Lock, Mail, RefreshCw, ShieldAlert, ShieldCheck } from 'lucide-react';
 import { TerminalShell } from '@/src/components/TerminalShell';
@@ -140,10 +142,10 @@ export default function AdminDashboardPage() {
             <ShieldAlert className="w-6 h-6" />
           </div>
           <h1 className="text-xl font-bold text-slate-900 dark:text-white">
-            403 · Access Restricted to Owner Account
+            403 · Access Restricted to anandijain26@gmail.com
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            Signed in as <span className="font-mono text-slate-800 dark:text-slate-200">{user.email}</span>. Only the designated owner account can access system administration.
+            Signed in as <span className="font-mono text-slate-800 dark:text-slate-200">{user.email}</span>. Only the designated administrator account (<span className="font-semibold text-blue-500">anandijain26@gmail.com</span>) can access the system administration panel.
           </p>
         </div>
       ) : (

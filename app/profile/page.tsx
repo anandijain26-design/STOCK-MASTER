@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import React, { useEffect, useState } from 'react';
 import { CheckCircle2, Mail, ShieldCheck } from 'lucide-react';
 import { TerminalShell } from '@/src/components/TerminalShell';

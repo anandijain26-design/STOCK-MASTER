@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight, RefreshCw } from 'lucide-react';
@@ -78,6 +80,17 @@ export default function DashboardPage() {
   ]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [dailyNews, setDailyNews] = useState<{
+    articles: Array<{
+      id: string;
+      title: string;
+      link: string;
+      source: string;
+      publishedAt: string;
+      symbol?: string;
+    }>;
+    lastSyncedAt: string | null;
+  }>({ articles: [], lastSyncedAt: null });
 
   const loadOverview = useCallback(async (silent = false) => {
     if (!silent) {
@@ -116,6 +129,23 @@ export default function DashboardPage() {
       active = false;
     };
   }, [loadOverview]);
+
+  useEffect(() => {
+    let active = true;
+    fetch('/api/market/news', { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!active || !d) return;
+        setDailyNews({
+          articles: (d.articles ?? []).slice(0, 4),
+          lastSyncedAt: d.autoUpdater?.lastSyncedAt ?? null,
+        });
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -524,6 +554,64 @@ export default function DashboardPage() {
             </table>
           </div>
         </section>
+
+        {/* Auto-Updated Daily Market News Strip */}
+        {dailyNews.articles.length > 0 && (
+          <section className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0F172A] p-4 space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <h2 className="text-sm font-semibold text-slate-900 dark:text-white">
+                  {language === 'hi'
+                    ? 'स्वचालित दैनिक बाज़ार समाचार'
+                    : 'Auto-Updated Daily Market Headlines'}
+                </h2>
+                {dailyNews.lastSyncedAt && (
+                  <span className="text-[11px] font-mono text-slate-500">
+                    · Synced{' '}
+                    {new Date(dailyNews.lastSyncedAt).toLocaleTimeString('en-IN', {
+                      timeZone: 'Asia/Kolkata',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}{' '}
+                    IST
+                  </span>
+                )}
+              </div>
+              <Link href="/news" className="text-xs font-medium text-blue-500 hover:underline">
+                {language === 'hi' ? 'सभी दैनिक समाचार व AI सारांश →' : 'Full News & Daily AI Digest →'}
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {dailyNews.articles.map((art) => (
+                <div
+                  key={art.id}
+                  className="p-3 rounded-lg border border-slate-100 dark:border-slate-800/80 hover:border-blue-500/40 transition-colors space-y-1"
+                >
+                  <div className="flex items-center justify-between gap-2 text-[11px] text-slate-500">
+                    <span>{art.source}</span>
+                    {art.symbol && (
+                      <Link
+                        href={`/stocks/${art.symbol}`}
+                        className="font-mono font-semibold text-blue-500 hover:underline"
+                      >
+                        {art.symbol}
+                      </Link>
+                    )}
+                  </div>
+                  <a
+                    href={art.link}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="block text-xs font-semibold text-slate-800 dark:text-slate-100 hover:text-blue-500 line-clamp-2"
+                  >
+                    {art.title}
+                  </a>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </TerminalShell>
   );
