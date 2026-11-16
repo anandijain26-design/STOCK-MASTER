@@ -1,0 +1,6 @@
+{
+  "name": "Stock Mastery",
+  "description": "India's AI-Powered Stock Market Intelligence Platform for NSE & BSE real-time tracking, TradingView technical charting, custom scanners, F&O analytics, paper trading, and automated after-market reports.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
